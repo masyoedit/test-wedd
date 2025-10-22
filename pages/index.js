@@ -51,33 +51,47 @@ export default function WeddingInvite() {
 
   // 🎵 Setup dan kontrol musik
   useEffect(() => {
-    // Hentikan audio lama jika ada
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
     const audio = new Audio(playlist[currentTrack].src);
     audioRef.current = audio;
     audio.loop = false;
-
-    // Jika lagu selesai → otomatis next
-    audio.onended = () => nextTrack(true);
-
-    // Autoplay saat load
-    audio
-      .play()
-      .then(() => {
-        fadeInAudio(audio);
-        setIsPlaying(true);
-      })
-      .catch(() => {
-        console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
-      });
-
+  
+    const tryPlay = () => {
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          console.log("🎵 Autoplay berhasil");
+        })
+        .catch(() => {
+          console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
+        });
+    };
+  
+    // Coba autoplay langsung
+    tryPlay();
+  
+    // Kalau autoplay diblokir, mulai saat user klik di mana saja
+    const handleUserInteraction = () => {
+      if (!isPlaying) {
+        tryPlay();
+      }
+      document.removeEventListener("click", handleUserInteraction);
+    };
+    document.addEventListener("click", handleUserInteraction);
+  
+    // Kalau lagu selesai, lanjut ke lagu berikutnya dan otomatis play
+    audio.onended = () => {
+      const nextIndex = (currentTrack + 1) % playlist.length;
+      setCurrentTrack(nextIndex);
+      setTimeout(() => {
+        const newAudio = new Audio(playlist[nextIndex].src);
+        audioRef.current = newAudio;
+        newAudio.play().then(() => setIsPlaying(true));
+      }, 300);
+    };
+  
     return () => {
       audio.pause();
-      audio.currentTime = 0;
+      document.removeEventListener("click", handleUserInteraction);
     };
   }, [currentTrack]);
 
