@@ -1,1 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Small customizations */
+html, body, #__next {
+  height: 100%;
+}
+.font-playfair { font-family: 'Playfair Display', serif; }
