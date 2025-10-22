@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 export default function WeddingInvite() {
-  // ✨ Info pasangan & acara
+  // 💍 Data pasangan & acara
   const bride = "Stefany";
   const groom = "Yudit";
   const date = "Sabtu, 27 Desember 2025";
@@ -11,7 +11,7 @@ export default function WeddingInvite() {
   const address = "GKJ Sidomukti Salatiga";
   const googleMapsQuery = encodeURIComponent(address);
 
-  // 📸 Foto & 🎵 Musik
+  // 📸 Foto dan 🎵 Musik
   const mainPhoto = "/images/main-photo.jpg";
   const galleryPhotos = [
     "/images/gallery1.jpg",
@@ -24,47 +24,18 @@ export default function WeddingInvite() {
     { title: "A Thousand Years - Christina Perri", src: "/music/athousandyears.mp3" },
   ];
 
-  // 🎧 State musik
+  // 🎧 Musik player state
   const [currentTrack, setCurrentTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
 
-  // 📸 State popup foto
+  // 📸 Popup zoom foto
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const openPhoto = (src) => setSelectedPhoto(src);
   const closePhoto = () => setSelectedPhoto(null);
 
-  // 🎵 Setup musik
-  useEffect(() => {
-    const audio = new Audio(playlist[currentTrack].src);
-    audioRef.current = audio;
-    audio.loop = false;
-
-    // Jika musik selesai → lanjut ke lagu berikutnya
-    audio.onended = () => {
-      nextTrack(true);
-    };
-
-    // Coba autoplay saat halaman pertama kali dibuka
-    audio.volume = 0;
-    audio
-      .play()
-      .then(() => {
-        fadeInAudio(audio);
-        setIsPlaying(true);
-        console.log("🎵 Autoplay berhasil");
-      })
-      .catch(() => {
-        console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
-      });
-
-    return () => {
-      audio.pause();
-    };
-  }, [currentTrack]);
-
-  // Efek fade-in lembut (3 detik)
+  // 🎵 Fade-in lembut
   function fadeInAudio(audio) {
     audio.volume = 0;
     let vol = 0;
@@ -78,10 +49,42 @@ export default function WeddingInvite() {
     }, 150);
   }
 
+  // 🎵 Setup dan kontrol musik
+  useEffect(() => {
+    // Hentikan audio lama jika ada
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    const audio = new Audio(playlist[currentTrack].src);
+    audioRef.current = audio;
+    audio.loop = false;
+
+    // Jika lagu selesai → otomatis next
+    audio.onended = () => nextTrack(true);
+
+    // Autoplay saat load
+    audio
+      .play()
+      .then(() => {
+        fadeInAudio(audio);
+        setIsPlaying(true);
+      })
+      .catch(() => {
+        console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
+      });
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [currentTrack]);
+
+  // Tombol Play/Pause
   function togglePlay() {
     const audio = audioRef.current;
     if (!audio) return;
-
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
@@ -91,6 +94,7 @@ export default function WeddingInvite() {
     }
   }
 
+  // Tombol Mute/Unmute
   function toggleMute() {
     const audio = audioRef.current;
     if (audio) {
@@ -99,30 +103,33 @@ export default function WeddingInvite() {
     }
   }
 
+  // Fungsi Next Track tanpa echo
   function nextTrack(auto = false) {
     const audio = audioRef.current;
-    if (audio) audio.pause();
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
 
     setCurrentTrack((prev) => {
       const next = (prev + 1) % playlist.length;
-      setTimeout(() => {
-        if (auto || isPlaying) {
-          const nextAudio = new Audio(playlist[next].src);
-          audioRef.current = nextAudio;
-          nextAudio.onended = () => nextTrack(true);
-          fadeInAudio(nextAudio);
-          nextAudio.play();
-        }
-      }, 300);
+      if (auto || isPlaying) {
+        setTimeout(() => {
+          const nextAudio = audioRef.current;
+          if (nextAudio) {
+            nextAudio.play().catch(() => {});
+          }
+        }, 500);
+      }
       return next;
     });
   }
 
-  // 🎀 Font
+  // 🎀 Tambahkan font elegan
   useEffect(() => {
     const href =
       "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap";
-    if (!document.querySelector(`link[href="${href}"]`)) {
+    if (!document.querySelector(`link[href='${href}']`)) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = href;
@@ -130,12 +137,12 @@ export default function WeddingInvite() {
     }
   }, []);
 
-  // 🩷 Tampilan utama
+  // 💐 Tampilan undangan
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-rose-50 to-rose-100 flex items-center justify-center p-6">
       <div className="max-w-3xl w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-rose-100 relative">
 
-        {/* === Kontrol Musik === */}
+        {/* 🎵 Kontrol Musik */}
         <div className="absolute top-4 right-4 bg-white/80 backdrop-blur rounded-full shadow flex items-center gap-2 px-3 py-1 text-sm text-rose-600 z-10">
           <button onClick={togglePlay} className="font-medium hover:text-rose-800">
             {isPlaying ? "Pause" : "Play"}
@@ -151,7 +158,7 @@ export default function WeddingInvite() {
           </span>
         </div>
 
-        {/* === Bagian kiri (teks) === */}
+        {/* 💌 Isi Undangan */}
         <div className="grid grid-cols-1 md:grid-cols-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -189,7 +196,7 @@ export default function WeddingInvite() {
             </p>
           </motion.div>
 
-          {/* === Bagian kanan (foto utama + galeri) === */}
+          {/* 📸 Foto & Galeri */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -204,8 +211,6 @@ export default function WeddingInvite() {
                 onClick={() => openPhoto(mainPhoto)}
               />
             </div>
-
-            {/* === Galeri kecil === */}
             <div className="w-full mt-3 grid grid-cols-3 gap-2">
               {galleryPhotos.map((photo, i) => (
                 <img
@@ -226,7 +231,7 @@ export default function WeddingInvite() {
         </div>
       </div>
 
-      {/* === Popup foto zoom === */}
+      {/* 🖼️ Popup Foto Zoom */}
       {selectedPhoto && (
         <div
           className="fixed inset-0 bg-black/80 flex justify-center items-center z-50"
