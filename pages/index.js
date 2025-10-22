@@ -91,8 +91,20 @@ export default function WeddingInvite() {
   function nextTrack() {
     const audio = audioRef.current;
     if (audio) audio.pause();
-    setCurrentTrack((prev) => (prev + 1) % playlist.length);
-    setIsPlaying(false);
+    function nextTrack() {
+    const audio = audioRef.current;
+    if (audio) audio.pause();
+
+    const nextIndex = (currentTrack + 1) % playlist.length;
+    setCurrentTrack(nextIndex);
+
+    // Tunggu sebentar agar state update, lalu mainkan lagu baru
+    setTimeout(() => {
+      const newAudio = new Audio(playlist[nextIndex].src);
+      audioRef.current = newAudio;
+      newAudio.play();
+      setIsPlaying(true);
+    }, 300);
   }
 
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
