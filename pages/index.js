@@ -156,7 +156,7 @@ export default function WeddingInvite() {
               <a href={`https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}`} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-full bg-rose-700 text-white font-medium shadow">Lihat Peta</a>
             </div>
 
-            <p className="mt-6 text-sm text-rose-600">Dresscode: Semi Formal — Warna pastel dianjurkan.</p>
+            <p className="mt-6 text-sm text-rose-600">Kami yang berbahagia</p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="p-6 md:p-0 bg-rose-50 flex flex-col gap-4 items-center justify-center">
