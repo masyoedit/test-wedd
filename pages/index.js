@@ -91,9 +91,6 @@ export default function WeddingInvite() {
   function nextTrack() {
     const audio = audioRef.current;
     if (audio) audio.pause();
-    function nextTrack() {
-    const audio = audioRef.current;
-    if (audio) audio.pause();
 
     const nextIndex = (currentTrack + 1) % playlist.length;
     setCurrentTrack(nextIndex);
