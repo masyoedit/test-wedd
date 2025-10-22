@@ -206,7 +206,7 @@ export default function WeddingInvite() {
             </div>
 
             <p className="mt-6 text-sm text-rose-600">
-              Dresscode: Semi Formal — Warna pastel dianjurkan.
+              Dari kami yang berbahagia.
             </p>
           </motion.div>
 
