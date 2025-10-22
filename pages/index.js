@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 export default function WeddingInvite() {
-  const bride = "Alya";
-  const groom = "Raka";
-  const date = "Sabtu, 14 Maret 2026";
-  const time = "09:00 WIB";
-  const venue = "Gedung Serbaguna Anggrek, Jakarta";
-  const address = "Jl. Mawar No. 10, Jakarta";
+  const bride = "Stefany";
+  const groom = "Yudit";
+  const date = "Sabtu, 27 Desember 2025";
+  const time = "10:00 WIB";
+  const venue = "GKJ Sidomukti Salatiga";
+  const address = "GKJ Sidomuksi Salatiga";
   const googleMapsQuery = encodeURIComponent(address);
 
   const mainPhoto = "/images/main-photo.jpg";
