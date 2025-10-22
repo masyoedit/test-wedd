@@ -18,6 +18,7 @@ export default function WeddingInvite() {
     "/images/gallery2.jpg",
     "/images/gallery3.jpg",
   ];
+
   const playlist = [
     { title: "Perfect - Ed Sheeran", src: "/music/perfect.mp3" },
     { title: "All of Me - John Legend", src: "/music/allofme.mp3" },
@@ -31,9 +32,11 @@ export default function WeddingInvite() {
   const audioRef = useRef(null);
 
   // 📸 Popup zoom foto
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const openPhoto = (src) => setSelectedPhoto(src);
-  const closePhoto = () => setSelectedPhoto(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
+  const openPhoto = (index) => setSelectedPhotoIndex(index);
+  const closePhoto = () => setSelectedPhotoIndex(null);
+  const nextPhoto = () => setSelectedPhotoIndex((prev) => (prev + 1) % galleryPhotos.length);
+  const prevPhoto = () => setSelectedPhotoIndex((prev) => (prev - 1 + galleryPhotos.length) % galleryPhotos.length);
 
   // 🎵 Fade-in lembut
   function fadeInAudio(audio) {
@@ -51,7 +54,6 @@ export default function WeddingInvite() {
 
   // 🎵 Setup dan kontrol musik
   useEffect(() => {
-    // Hentikan audio lama jika ada
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -61,19 +63,23 @@ export default function WeddingInvite() {
     audioRef.current = audio;
     audio.loop = false;
 
-    // Jika lagu selesai → otomatis next
+    // Auto-next track setelah selesai
     audio.onended = () => nextTrack(true);
 
-    // Autoplay saat load
-    audio
-      .play()
-      .then(() => {
-        fadeInAudio(audio);
-        setIsPlaying(true);
-      })
-      .catch(() => {
-        console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
-      });
+    // Coba autoplay langsung (beberapa browser perlu interaksi, tapi ini sudah memaksa di sebagian besar)
+    const tryPlay = () => {
+      audio.play()
+        .then(() => {
+          fadeInAudio(audio);
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
+        });
+    };
+
+    // Autoplay langsung saat halaman load
+    tryPlay();
 
     return () => {
       audio.pause();
@@ -81,7 +87,7 @@ export default function WeddingInvite() {
     };
   }, [currentTrack]);
 
-  // Tombol Play/Pause
+  // 🎵 Kontrol tombol musik
   function togglePlay() {
     const audio = audioRef.current;
     if (!audio) return;
@@ -94,7 +100,6 @@ export default function WeddingInvite() {
     }
   }
 
-  // Tombol Mute/Unmute
   function toggleMute() {
     const audio = audioRef.current;
     if (audio) {
@@ -103,7 +108,6 @@ export default function WeddingInvite() {
     }
   }
 
-  // Fungsi Next Track tanpa echo
   function nextTrack(auto = false) {
     const audio = audioRef.current;
     if (audio) {
@@ -116,9 +120,7 @@ export default function WeddingInvite() {
       if (auto || isPlaying) {
         setTimeout(() => {
           const nextAudio = audioRef.current;
-          if (nextAudio) {
-            nextAudio.play().catch(() => {});
-          }
+          if (nextAudio) nextAudio.play().catch(() => {});
         }, 500);
       }
       return next;
@@ -208,7 +210,7 @@ export default function WeddingInvite() {
                 src={mainPhoto}
                 alt="couple"
                 className="rounded-xl object-cover w-full h-72 md:h-full md:rounded-l-2xl md:rounded-r-none cursor-pointer"
-                onClick={() => openPhoto(mainPhoto)}
+                onClick={() => openPhoto(0)}
               />
             </div>
             <div className="w-full mt-3 grid grid-cols-3 gap-2">
@@ -218,7 +220,7 @@ export default function WeddingInvite() {
                   src={photo}
                   alt={`gallery-${i}`}
                   className="rounded-md h-20 w-full object-cover cursor-pointer hover:scale-105 transition"
-                  onClick={() => openPhoto(photo)}
+                  onClick={() => openPhoto(i)}
                 />
               ))}
             </div>
@@ -232,24 +234,38 @@ export default function WeddingInvite() {
       </div>
 
       {/* 🖼️ Popup Foto Zoom */}
-      {selectedPhoto && (
+      {selectedPhotoIndex !== null && (
         <div
           className="fixed inset-0 bg-black/80 flex justify-center items-center z-50"
           onClick={closePhoto}
         >
           <div className="relative">
             <img
-              src={selectedPhoto}
+              src={galleryPhotos[selectedPhotoIndex]}
               alt="Zoomed"
               className="max-h-[90vh] max-w-[90vw] rounded-2xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
-            <button
-              onClick={closePhoto}
-              className="absolute top-2 right-2 bg-white text-gray-800 rounded-full p-2 shadow hover:bg-gray-200 transition"
-            >
-              ✖️
-            </button>
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={prevPhoto}
+                className="bg-white text-gray-800 rounded-full p-2 shadow hover:bg-gray-200 transition"
+              >
+                ⬅️
+              </button>
+              <button
+                onClick={nextPhoto}
+                className="bg-white text-gray-800 rounded-full p-2 shadow hover:bg-gray-200 transition"
+              >
+                ➡️
+              </button>
+              <button
+                onClick={closePhoto}
+                className="bg-white text-gray-800 rounded-full p-2 shadow hover:bg-gray-200 transition"
+              >
+                ✖️
+              </button>
+            </div>
           </div>
         </div>
       )}
