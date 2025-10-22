@@ -33,15 +33,45 @@ export default function WeddingInvite() {
     const audio = new Audio(playlist[currentTrack].src);
     audioRef.current = audio;
     audio.loop = false;
-
-    audio.onended = () => {
-      nextTrack();
+  
+    const tryPlay = () => {
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          console.log("🎵 Autoplay berhasil");
+        })
+        .catch(() => {
+          console.log("🔇 Autoplay diblokir, menunggu interaksi pengguna...");
+        });
     };
-
+  
+    // Coba autoplay langsung
+    tryPlay();
+  
+    // Kalau autoplay diblokir, mulai saat user klik di mana saja
+    const handleUserInteraction = () => {
+      if (!isPlaying) {
+        tryPlay();
+      }
+      document.removeEventListener("click", handleUserInteraction);
+    };
+    document.addEventListener("click", handleUserInteraction);
+  
+    // Kalau lagu selesai, lanjut ke lagu berikutnya dan otomatis play
+    audio.onended = () => {
+      const nextIndex = (currentTrack + 1) % playlist.length;
+      setCurrentTrack(nextIndex);
+      setTimeout(() => {
+        const newAudio = new Audio(playlist[nextIndex].src);
+        audioRef.current = newAudio;
+        newAudio.play().then(() => setIsPlaying(true));
+      }, 300);
+    };
+  
     return () => {
       audio.pause();
+      document.removeEventListener("click", handleUserInteraction);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrack]);
 
   function togglePlay() {
